@@ -30,7 +30,7 @@ class PagepressHTTPHandler(SimpleHTTPRequestHandler):
         path = posixpath.normpath(urllib.unquote(path))
         words = path.split('/')
         words = filter(None, words)
-        path = os.path.join(self.pagepress_base, 'static')
+        path = os.path.join(self.generator.base, 'static')
         for word in words:
             drive, word = os.path.splitdrive(word)
             head, word = os.path.split(word)
