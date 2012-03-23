@@ -1,8 +1,8 @@
 
 import logging, os, errno
 from datetime import datetime
-from pagepress.page import Page, Blog, HTML, Templated
-from pagepress.parsers import Markdown
+from pagepress.page import Page, Blog, HTML, Templated, Stylesheet
+from pagepress.parsers import Markdown, CSS
 from mako.lookup import TemplateLookup
 from pagepress.convertors import asbool
 
@@ -41,7 +41,8 @@ class Generator:
         self.data = os.path.join(self.base,'data')
 
         self.parsers = {
-            '.md': Markdown(),
+            '.md': Markdown(self),
+            '.css': CSS(self),
         }
 
         self.types = {
@@ -49,9 +50,11 @@ class Generator:
             'templated': Templated,
             'html': HTML,
             'blog': Blog,
+            'stylesheet': Stylesheet,
         }
 
         template_debugging = asbool(config.get('pagepress:main', 'template_debugging'))
+        self.stop_on_error = asbool(config.get('pagepress:main', 'stop_on_error'))
         self.templates = TemplateLookup(directories=[os.path.join(self.base, 'source')], 
                                         input_encoding='utf-8',
                                         output_encoding='utf-8',
@@ -113,6 +116,8 @@ class Generator:
                 except Exception, e:
                     log.error('Could not parse file: %s (%s)' %
                               ('/'.join(page['path']), e))
+                    if self.stop_on_error:
+                        raise
 
         for page in self.pages:
             try:
@@ -133,6 +138,8 @@ class Generator:
                 log.error('Error rendering page %s (%s) Turn on template'
                           ' debugging to assist.' % 
                               ('/'.join(page.path), e))
+                if self.stop_on_error:
+                    raise
 
         return generating_time
 

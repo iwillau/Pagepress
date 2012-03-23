@@ -2,6 +2,7 @@
 import datetime
 
 class Page:
+    type = 'page'
     def __init__(self, generator, path, mtime, content, **kwargs):
         self.generator = generator
         self.path = path
@@ -14,7 +15,6 @@ class Page:
         basename = self.path[-1][0:i]
         self.path[-1] = basename + extension
 
-
     def url(self):
         return '/' + '/'.join(self.path)
 
@@ -24,6 +24,7 @@ class Page:
 
 class Templated(Page):
     template_extension = '.mako'
+    type = 'templated'
     def __init__(self, generator, **kwargs):
         template_name = kwargs.pop('template', None)
         Page.__init__(self, generator, **kwargs)
@@ -49,9 +50,10 @@ class Templated(Page):
         return self.template.render(pagepress=self.generator, page=self)
 
 class HTML(Templated):
-    pass
+    type = 'html'
 
 class Blog(HTML):
+    type = 'blog'
     def __init__(self, **kwargs):
         self.title = kwargs.pop('title')
         self.published = kwargs.pop('published', None)
@@ -59,4 +61,9 @@ class Blog(HTML):
             day, month, year = [int(i) for i in self.published.split('/')]
             self.published = datetime.date(year, month, day)
         HTML.__init__(self, **kwargs)
+
+class Stylesheet(Page):
+    def __init__(self, **kwargs):
+        print kwargs.keys()
+        Page.__init__(self, **kwargs)
 
