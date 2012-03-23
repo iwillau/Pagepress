@@ -33,11 +33,11 @@ def list_files(base, path=[]):
             }
 
 class Generator:
-    def __init__(self, base):
-        self.base = base
-        self.source = os.path.join(base,'source')
-        self.static = os.path.join(base,'static')
-        self.data = os.path.join(base,'data')
+    def __init__(self, config):
+        self.base = config.get('pagepress:main', 'base')
+        self.source = os.path.join(self.base,'source')
+        self.static = os.path.join(self.base,'static')
+        self.data = os.path.join(self.base,'data')
 
         self.parsers = {
             '.md': Markdown(),
@@ -50,10 +50,11 @@ class Generator:
             'blog': Blog,
         }
 
-        self.templates = TemplateLookup(directories=[os.path.join(base, 'source')], 
+        self.templates = TemplateLookup(directories=[os.path.join(self.base, 'source')], 
                                         input_encoding='utf-8',
                                         output_encoding='utf-8',
-                                        module_directory=self.data
+                                        module_directory=self.data,
+                                        format_exceptions=True,
                                        )
 
     def update(self):
@@ -112,21 +113,24 @@ class Generator:
                               ('/'.join(page['path']), e))
 
         for page in self.pages:
+#            try:
+            rendered_file = os.path.join(self.static, *page.path)
+            log.debug('Generating File: %s' % rendered_file)
             try:
-                rendered_file = os.path.join(self.static, *page.path)
-                log.debug('Generating File: %s' % rendered_file)
-                try:
+                rfp = open(rendered_file, 'w')
+            except IOError, e:
+                if e.errno == errno.ENOENT:
+                    directory = os.path.dirname(rendered_file)
+                    os.makedirs(directory)
                     rfp = open(rendered_file, 'w')
-                except IOError, e:
-                    if e.errno == errno.ENOENT:
-                        directory = os.path.dirname(rendered_file)
-                        os.makedirs(directory)
-                        rfp = open(rendered_file, 'w')
-                rfp.write(page.render())
-                rfp.close()
-            except Exception, e:
-                log.error('Error rendering page %s (%s)' % 
-                              ('/'.join(page.path), e))
+                else:
+                    raise e
+            rfp.write(page.render())
+            rfp.close()
+#            except Exception, e:
+#               log.error('Error rendering page %s (%s)' % 
+#                              ('/'.join(page.path), e))
+#                raise e
 
         return generating_time
 
