@@ -1,6 +1,7 @@
 
 import logging
 from markdown import Markdown as MarkdownParser
+from markdown_image import ImageExtension
 
 log = logging.getLogger(__name__)
 
@@ -31,12 +32,17 @@ class Markdown(Parser):
         self.generator = generator
         self.markdown = MarkdownParser(
                             output_format='html5',
-                            extensions = ['tables'],
+                            extensions = ['tables',
+                                          ImageExtension()],
                         )
     def parse(self, fp):
         meta = {}
         
         content = self.markdown.convert(''.join(self.read_intercept_head(meta, fp)))
+        for href, title in self.markdown.references.itervalues():
+            print href
+            if ':' not in href:
+                self.generator.static(href)
         self.markdown.reset()
         pagetype = meta.pop('type', 'templated') # Default Pagetype
         return pagetype, meta, content

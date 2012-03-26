@@ -42,6 +42,7 @@ class Generator:
         self.data = os.path.join(self.base,'data')
 
         self.static_resources = []
+        self.current_path = []
 
         self.parsers = {
             '.md': Markdown(self),
@@ -112,6 +113,7 @@ class Generator:
         for page in pages:
             if page['extension'] in self.parsers:
                 fp = open(os.path.join(self.source, *page['path']))
+                self.current_path = page['path'][:-1]
                 try:
                     pagetype, metadata, content = self.parsers[page['extension']].parse(fp)
                     metadata.update(page)
@@ -158,6 +160,10 @@ class Generator:
         return generating_time
 
     def static(self, path):
+        if not path.startswith('/'):
+            if len(self.current_path):
+                path = os.path.join(os.path.join(*self.current_path), path)
+            path = '/'+path
         if path not in self.static_resources:
             self.static_resources.append(path)
         return path
@@ -166,7 +172,7 @@ class Generator:
         log.debug('Copying Static resources')
         for sr in self.static_resources:
             log.debug('copying static %s' % sr)
-            if sr[0:1] == '/':
+            if sr.startswith('/'):
                 sr = sr[1:]
             try:
                 shutil.copy(os.path.join(self.source, sr), 
