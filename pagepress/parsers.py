@@ -40,7 +40,6 @@ class Markdown(Parser):
         
         content = self.markdown.convert(''.join(self.read_intercept_head(meta, fp)))
         for href, title in self.markdown.references.itervalues():
-            print href
             if ':' not in href:
                 self.generator.static(href)
         self.markdown.reset()
