@@ -1,8 +1,9 @@
 
-import logging, os, errno
+import logging, os, errno, gzip, shutil
 from datetime import datetime
-from pagepress.page import Page, Blog, HTML, Templated, Stylesheet
-from pagepress.parsers import Markdown, CSS
+from pagepress.page import ( File, Page, Blog, HTML, Templated, Stylesheet,
+                            Javascript)
+from pagepress.parsers import Markdown, CSS, JS
 from mako.lookup import TemplateLookup
 from pagepress.convertors import asbool
 
@@ -37,12 +38,15 @@ class Generator:
     def __init__(self, config):
         self.base = config.get('pagepress:main', 'base')
         self.source = os.path.join(self.base,'source')
-        self.static = os.path.join(self.base,'static')
+        self.web_path = os.path.join(self.base,'static')
         self.data = os.path.join(self.base,'data')
+
+        self.static_resources = []
 
         self.parsers = {
             '.md': Markdown(self),
             '.css': CSS(self),
+            '.js': JS(self),
         }
 
         self.types = {
@@ -51,6 +55,7 @@ class Generator:
             'html': HTML,
             'blog': Blog,
             'stylesheet': Stylesheet,
+            'javascript':Javascript,
         }
 
         template_debugging = asbool(config.get('pagepress:main', 'template_debugging'))
@@ -72,7 +77,7 @@ class Generator:
         2. Let them parse their own contents
         3. Pass them to the templater
         '''
-        generated_file = os.path.join(self.static, 'generated.txt')
+        generated_file = os.path.join(self.web_path, 'generated.txt')
         try:
             fp = open(generated_file,'r')
             gen_string = fp.readline()
@@ -95,6 +100,7 @@ class Generator:
 
         if newer:
             generate_time = self.generate_all(page_defs)
+            self.copy_static()
             fp = open(generated_file,'w')
             fp.write(generate_time.strftime('%d/%m/%Y %H:%M:%S'));
             fp.close()
@@ -118,10 +124,14 @@ class Generator:
                               ('/'.join(page['path']), e))
                     if self.stop_on_error:
                         raise
+            # else:
+            #     fp = open(os.path.join(self.source, *page['path']))
+            #     content = fp.read()
+            #     self.pages.append(File(generator=self, content=content, **page))
 
         for page in self.pages:
             try:
-                rendered_file = os.path.join(self.static, *page.path)
+                rendered_file = os.path.join(self.web_path, *page.path)
                 log.debug('Generating File: %s' % rendered_file)
                 try:
                     rfp = open(rendered_file, 'w')
@@ -132,7 +142,11 @@ class Generator:
                         rfp = open(rendered_file, 'w')
                     else:
                         raise e
-                rfp.write(page.render())
+                page_content = page.render()
+                rfp.write(page_content)
+                rfp.close()
+                rfp = open(rendered_file+'.gz', 'w')
+                rfp.write(page_content)
                 rfp.close()
             except Exception, e:
                 log.error('Error rendering page %s (%s) Turn on template'
@@ -143,3 +157,25 @@ class Generator:
 
         return generating_time
 
+    def static(self, path):
+        if path not in self.static_resources:
+            self.static_resources.append(path)
+        return path
+
+    def copy_static(self):
+        log.debug('Copying Static resources')
+        for sr in self.static_resources:
+            log.debug('copying static %s' % sr)
+            if sr[0:1] == '/':
+                sr = sr[1:]
+            try:
+                shutil.copy(os.path.join(self.source, sr), 
+                            os.path.join(self.web_path, sr))
+            except IOError, e:
+                if e.errno == errno.ENOENT:
+                    directory = os.path.dirname(os.path.join(self.web_path, sr))
+                    os.makedirs(directory)
+                    shutil.copy(os.path.join(self.source, sr), 
+                                os.path.join(self.web_path, sr))
+                else:
+                    raise

@@ -1,14 +1,14 @@
 
 import datetime
 
-class Page:
-    type = 'page'
-    def __init__(self, generator, path, mtime, content, **kwargs):
+class File(object):
+    type = 'file'
+    def __init__(self, generator, path, mtime, content, **metadata):
         self.generator = generator
         self.path = path
         self.content = content
         self.mtime = mtime
-        self.metadata = kwargs
+        self.metadata = metadata
 
     def change_extension(self, extension):
         i = self.path[-1].rfind('.')
@@ -21,6 +21,10 @@ class Page:
     def render(self, **kwargs):
         return self.content
 
+class Page(File):
+    type = 'page'
+    def __init__(self, generator, path, mtime, content, **kwargs):
+        super(Page, self).__init__(generator, path, mtime, content, **kwargs)
 
 class Templated(Page):
     template_extension = '.mako'
@@ -62,8 +66,11 @@ class Blog(HTML):
             self.published = datetime.date(year, month, day)
         HTML.__init__(self, **kwargs)
 
-class Stylesheet(Page):
+class Stylesheet(File):
     def __init__(self, **kwargs):
-        print kwargs.keys()
-        Page.__init__(self, **kwargs)
+        super(Stylesheet, self).__init__(**kwargs)
+
+class Javascript(File):
+    def __init__(self, **kwargs):
+        super(Javascript, self).__init__(**kwargs)
 

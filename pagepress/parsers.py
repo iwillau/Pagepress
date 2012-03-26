@@ -44,5 +44,7 @@ class Markdown(Parser):
 class CSS(Parser):
     default_page = 'stylesheet'
 
+class JS(Parser):
+    default_page = 'javascript'
 
 
