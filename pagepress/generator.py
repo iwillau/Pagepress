@@ -147,9 +147,10 @@ class Generator:
                 page_content = page.render()
                 rfp.write(page_content)
                 rfp.close()
-                rfp = open(rendered_file+'.gz', 'w')
-                rfp.write(page_content)
-                rfp.close()
+                if not rendered_file.endswith('.gz'):
+                    rfp = gzip.open(rendered_file+'.gz', 'w')
+                    rfp.write(page_content)
+                    rfp.close()
             except Exception, e:
                 log.error('Error rendering page %s (%s) Turn on template'
                           ' debugging to assist.' % 
