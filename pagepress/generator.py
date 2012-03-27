@@ -1,5 +1,5 @@
 
-import logging, os, errno, gzip, shutil
+import logging, os, errno, gzip, shutil, codecs
 from datetime import datetime
 from pagepress.page import ( File, Page, Blog, HTML, Templated, Stylesheet,
                             Javascript)
@@ -80,7 +80,7 @@ class Generator:
         '''
         generated_file = os.path.join(self.web_path, 'generated.txt')
         try:
-            fp = open(generated_file,'r')
+            fp = open(generated_file, "r")
             gen_string = fp.readline()
             fp.close()
             generated = datetime.strptime(gen_string, '%d/%m/%Y %H:%M:%S')
@@ -112,7 +112,8 @@ class Generator:
         self.pages = []
         for page in pages:
             if page['extension'] in self.parsers:
-                fp = open(os.path.join(self.source, *page['path']))
+                filename = os.path.join(self.source, *page['path'])
+                fp = codecs.open(filename, mode="r", encoding='utf-8')
                 self.current_path = page['path'][:-1]
                 try:
                     pagetype, metadata, content = self.parsers[page['extension']].parse(fp)
