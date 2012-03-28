@@ -137,7 +137,7 @@ class Generator:
                 rendered_file = os.path.join(self.web_path, *page.path)
                 log.debug('Generating File: %s' % rendered_file)
                 try:
-                    rfp = open(rendered_file, 'w')
+                    rfp = codecs.open(rendered_file, mode='w', encoding='utf-8')
                 except IOError, e:
                     if e.errno == errno.ENOENT:
                         directory = os.path.dirname(rendered_file)
