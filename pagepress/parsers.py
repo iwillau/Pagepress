@@ -13,7 +13,7 @@ class Parser:
     def read_intercept_head(self, meta, fp):
         for line in fp:
             try:
-                name, value = line.split(':')
+                name, value = line.split(':', 1)
                 meta[name.lower()] = value.strip()
             except Exception, e:
                 yield line
