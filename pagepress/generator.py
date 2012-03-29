@@ -62,8 +62,8 @@ class Generator:
         template_debugging = asbool(config.get('pagepress:main', 'template_debugging'))
         self.stop_on_error = asbool(config.get('pagepress:main', 'stop_on_error'))
         self.templates = TemplateLookup(directories=[os.path.join(self.base, 'source')], 
-                                        input_encoding='utf-8',
-                                        output_encoding='utf-8',
+                                        input_encoding='utf8',
+                                        output_encoding='utf8',
                                         module_directory=self.data,
                                         format_exceptions=template_debugging,
                                        )
@@ -113,7 +113,7 @@ class Generator:
         for page in pages:
             if page['extension'] in self.parsers:
                 filename = os.path.join(self.source, *page['path'])
-                fp = codecs.open(filename, mode="r", encoding='utf-8')
+                fp = codecs.open(filename, mode="r", encoding='utf8')
                 self.current_path = page['path'][:-1]
                 try:
                     pagetype, metadata, content = self.parsers[page['extension']].parse(fp)
@@ -137,7 +137,7 @@ class Generator:
                 rendered_file = os.path.join(self.web_path, *page.path)
                 log.debug('Generating File: %s' % rendered_file)
                 try:
-                    rfp = codecs.open(rendered_file, mode='w', encoding='utf-8')
+                    rfp = codecs.open(rendered_file, mode='w', encoding='utf8')
                 except IOError, e:
                     if e.errno == errno.ENOENT:
                         directory = os.path.dirname(rendered_file)
@@ -150,7 +150,7 @@ class Generator:
                 rfp.close()
                 if not rendered_file.endswith('.gz'):
                     rfp = gzip.open(rendered_file+'.gz', 'w')
-                    rfp.write(page_content)
+                    rfp.write(page_content.encode('utf8'))
                     rfp.close()
             except Exception, e:
                 log.error('Error rendering page %s (%s) Turn on template'
