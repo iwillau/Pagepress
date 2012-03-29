@@ -23,7 +23,7 @@ class Parser:
 
     def parse(self, fp):
         meta = {}
-        content = ''.join([l for l in self.read_intercept_head(meta, fp)])
+        content = u''.join([l for l in self.read_intercept_head(meta, fp)])
         pagetype = meta.pop('type', self.default_page) 
         return pagetype, meta, content
 
