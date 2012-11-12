@@ -140,20 +140,20 @@ class Generator:
                 rendered_file = os.path.join(self.web_path, *page.path)
                 log.debug('Generating File: %s' % rendered_file)
                 try:
-                    rfp = codecs.open(rendered_file, mode='w', encoding='utf8')
+                    rfp = open(rendered_file, mode='w')
                 except IOError, e:
                     if e.errno == errno.ENOENT:
                         directory = os.path.dirname(rendered_file)
                         os.makedirs(directory)
-                        rfp = open(rendered_file, 'w')
+                        rfp = open(rendered_file, mode='w')
                     else:
                         raise e
-                page_content = page.render()
+                page_content = page.render().encode('utf8')
                 rfp.write(page_content)
                 rfp.close()
                 if not rendered_file.endswith('.gz'):
                     rfp = gzip.open(rendered_file+'.gz', 'w')
-                    rfp.write(page_content.encode('utf8'))
+                    rfp.write(page_content)
                     rfp.close()
             except Exception, e:
                 log.error('Error rendering page %s (%s) Turn on template'

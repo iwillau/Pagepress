@@ -51,7 +51,7 @@ class Templated(Page):
         self.template = generator.templates.get_template(template_name)
 
     def render(self, **kwargs):
-        return self.template.render(pagepress=self.generator, page=self)
+        return self.template.render_unicode(pagepress=self.generator, page=self)
 
 class HTML(Templated):
     type = 'html'
