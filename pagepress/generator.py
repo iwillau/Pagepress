@@ -37,9 +37,12 @@ def list_files(base, path=[]):
 class Generator:
     def __init__(self, config):
         self.base = config.get('pagepress:main', 'base')
-        self.source = os.path.join(self.base,'source')
-        self.web_path = os.path.join(self.base,'static')
-        self.data = os.path.join(self.base,'data')
+        self.source = os.path.join(self.base,
+        	config.get('pagepress:main', 'source'))
+        self.web_path = os.path.join(self.base,
+        	config.get('pagepress:main', 'static'))
+        self.data = os.path.join(self.base,
+        	config.get('pagepress:main', 'data'))
 
         self.static_resources = []
         self.current_path = []

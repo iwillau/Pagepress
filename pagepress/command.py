@@ -63,7 +63,10 @@ def command():
         sys.exit(1)
 
     config_file = os.path.abspath(config_file)
-    parser = SafeConfigParser()
+    parser = SafeConfigParser({'source': 'source',
+			       'static': 'static',
+			       'data': 'data',
+				})
     parser.read([config_file])
     fileConfig([config_file]) # TODO: This should check for loggin config
                               #       and if not present set to sane defaults
