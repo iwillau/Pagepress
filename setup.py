@@ -23,9 +23,9 @@ setup(
     author = "William Wheatley",
     author_email = "will@iwill.id.au",
     description = "Pagepress is a Site-Generation Utility.",
-    license = "BSD",
+    license = "MIT",
     keywords = "blog html website",
-    url = "http://iwill.id.au/pagepress/",   # project home page, if any
+    url = "http://iwill.id.au/pagepress/",
     zip_safe = True,
 
     entry_points = {
