@@ -5,7 +5,6 @@ from pagepress.page import ( File, Page, Blog, HTML, Templated, Stylesheet,
                             Javascript)
 from pagepress.parsers import Markdown, CSS, JS
 from mako.lookup import TemplateLookup
-from pagepress.convertors import asbool
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +47,7 @@ class Generator:
         self.current_path = []
 
         self.parsers = {
-            '.md': Markdown(self),
+            #'.md': Markdown(self),
             '.css': CSS(self),
             '.js': JS(self),
         }
@@ -62,8 +61,8 @@ class Generator:
             'javascript':Javascript,
         }
 
-        template_debugging = asbool(config.get('pagepress:main', 'template_debugging'))
-        self.stop_on_error = asbool(config.get('pagepress:main', 'stop_on_error'))
+        template_debugging = config.get('pagepress:main', 'template_debugging')
+        self.stop_on_error = config.get('pagepress:main', 'stop_on_error')
         self.templates = TemplateLookup(directories=[os.path.join(self.base, 'source')], 
                                         input_encoding='utf8',
                                         output_encoding='utf8',
@@ -87,7 +86,7 @@ class Generator:
             gen_string = fp.readline()
             fp.close()
             generated = datetime.strptime(gen_string, '%d/%m/%Y %H:%M:%S')
-        except Exception, e:
+        except Exception as e:
             generated = datetime(1900,1,1)
 
         log.debug('Checking source for updated files')
@@ -125,7 +124,7 @@ class Generator:
                                                 generator=self,
                                                 content=content,
                                                 **metadata))
-                except Exception, e:
+                except Exception as e:
                     log.error('Could not parse file: %s (%s)' %
                               ('/'.join(page['path']), e))
                     if self.stop_on_error:
@@ -141,7 +140,7 @@ class Generator:
                 log.debug('Generating File: %s' % rendered_file)
                 try:
                     rfp = open(rendered_file, mode='w')
-                except IOError, e:
+                except IOError as e:
                     if e.errno == errno.ENOENT:
                         directory = os.path.dirname(rendered_file)
                         os.makedirs(directory)
@@ -155,7 +154,7 @@ class Generator:
                     rfp = gzip.open(rendered_file+'.gz', 'w')
                     rfp.write(page_content)
                     rfp.close()
-            except Exception, e:
+            except Exception as e:
                 log.error('Error rendering page %s (%s) Turn on template'
                           ' debugging to assist.' % 
                               ('/'.join(page.path), e))
@@ -182,7 +181,7 @@ class Generator:
             try:
                 shutil.copy(os.path.join(self.source, sr), 
                             os.path.join(self.web_path, sr))
-            except IOError, e:
+            except IOError as e:
                 if e.errno == errno.ENOENT:
                     directory = os.path.dirname(os.path.join(self.web_path, sr))
                     os.makedirs(directory)

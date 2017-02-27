@@ -1,7 +1,7 @@
 
 import logging
-from markdown import Markdown as MarkdownParser
-from markdown_image import ImageExtension
+# from markdown import Markdown as MarkdownParser
+# from markdown_image import ImageExtension
 
 log = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ class Parser:
             try:
                 name, value = line.split(':', 1)
                 meta[name.lower()] = value.strip()
-            except Exception, e:
+            except Exception as e:
                 yield line
                 break
         for line in fp:
