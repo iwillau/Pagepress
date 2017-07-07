@@ -15,6 +15,7 @@ If this file becomes too big and is split up, these utilities
 should be moved to their own module
 '''
 
+
 truthy = ('1', 'true', 't', 'y', 'yes', 'on')
 
 def asbool(value):
@@ -162,9 +163,10 @@ def command(argv=sys.argv[1:]):
     else:
         logger.setLevel((4 - config['debug']) * 10)
 
+    print(config)
     g = Generator(config)
  
-    if command == 'generate':
+    if 'generate'in config['command']:
         g.update()
     else:
         serve(g)

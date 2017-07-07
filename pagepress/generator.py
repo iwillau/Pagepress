@@ -1,4 +1,3 @@
-
 import logging, os, errno, gzip, shutil, codecs
 from datetime import datetime
 from pagepress.page import ( File, Page, Blog, HTML, Templated, Stylesheet,
@@ -7,6 +6,7 @@ from pagepress.parsers import Markdown, CSS, JS
 from mako.lookup import TemplateLookup
 
 log = logging.getLogger(__name__)
+
 
 def list_files(base, path=[]):
     '''This function can be made much quicker
@@ -33,11 +33,12 @@ def list_files(base, path=[]):
                 'extension': os.path.splitext(full_path)[1],
             }
 
+
 class Generator:
     def __init__(self, config):
         self.base = config.get('pagepress:main', 'base')
-        self.source = os.path.join(self.base,
-        	config.get('pagepress:main', 'source'))
+        self.source = os.path.join(self.base, 
+            config.get('pagepress:main', 'source'))
         self.web_path = os.path.join(self.base,
         	config.get('pagepress:main', 'static'))
         self.data = os.path.join(self.base,
@@ -189,3 +190,5 @@ class Generator:
                                 os.path.join(self.web_path, sr))
                 else:
                     raise
+
+
